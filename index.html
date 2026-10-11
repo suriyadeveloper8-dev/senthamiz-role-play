@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Senthamiz Role Play — Browser Demo</title>
+<title>Senthamiz Role Play — City Edition</title>
 <meta name="description" content="Senthamiz Role Play low-poly 3D browser game demo with touch controls.">
 <style>
 :root{color-scheme:dark;font-family:system-ui,Segoe UI,Arial,sans-serif}
@@ -48,9 +48,9 @@ input{flex:1}button{cursor:pointer;background:#0e7490;border-color:#0e7490;font-
 </head>
 <body>
 <div id="game"></div>
-<div id="brand" class="panel"><strong>ச SENTHAMIZ ROLE PLAY</strong><small>Low-poly browser demo · Single player</small></div>
+<div id="brand" class="panel"><strong>ச SENTHAMIZ ROLE PLAY</strong><small>City Edition · Third-person driving</small></div>
 <div id="hud" class="panel">Status: <b id="status">Connecting…</b><br>Players online: <b id="count">0</b><br>Mode: <b id="mode">On foot</b></div>
-<div id="help" class="panel">WASD / Arrow keys — Move<br>Mouse drag — Look around<br>E — Enter / exit nearby car<br>Enter — Chat · Esc — close chat<br><span style="color:#8dd8f0">Browser demo: single-player preview; online multiplayer comes later.</span></div>
+<div id="help" class="panel">WASD / Arrow keys — Move<br>Mouse drag — Look around<br>E — Enter / exit nearby car<br>Enter — Chat · Esc — close chat<br><span style="color:#8dd8f0">City Edition preview · Single player · Internet needed to load 3D engine.</span></div>
 <div id="chat" class="panel"><b style="font-size:13px;margin-bottom:6px">CITY CHAT</b><div id="messages"><div style="color:#9eb3c3">Welcome to Senthamiz City. Be respectful!</div></div><form id="chatform"><input id="chatinput" maxlength="180" placeholder="Type a message…" autocomplete="off"><button>Send</button></form></div>
 <div id="toast" class="panel"></div>
 
@@ -69,7 +69,7 @@ input{flex:1}button{cursor:pointer;background:#0e7490;border-color:#0e7490;font-
   </div>
 </div>
 
-<div id="join"><div id="joinbox" class="panel"><h1>Senthamiz Role Play</h1><p>A browser-playable roleplay sandbox. No app install needed. Choose your character name and explore the city.</p><form id="joinform"><input id="name" maxlength="18" placeholder="Your RP name" value="Suriya" required><button>PLAY</button></form><p style="font-size:11px">Prototype build · Not affiliated with GTA or Rockstar Games.</p></div></div>
+<div id="join"><div id="joinbox" class="panel"><h1>Senthamiz Role Play</h1><p>Explore Senthamiz City in a third-person 3D sandbox. Walk around and drive cars right in your browser.</p><form id="joinform"><input id="name" maxlength="18" placeholder="Your RP name" value="Suriya" required><button>PLAY</button></form><p style="font-size:11px">Fan-made browser prototype · Not affiliated with GTA or Rockstar Games.</p></div></div>
 
 <script type="module">
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
@@ -114,28 +114,30 @@ const keys = {};
 const players = new Map();
 const cars = [];
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x9ed7ee);
-scene.fog = new THREE.Fog(0x9ed7ee, 45, 145);
+scene.background = new THREE.Color(0xb8d9e8);
+scene.fog = new THREE.Fog(0xb8d9e8, 75, 220);
 const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, .1, 220);
 const renderer = new THREE.WebGLRenderer({antialias:false, powerPreference:'low-power'});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.25));
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
 renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = false;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 root.appendChild(renderer.domElement);
 
-scene.add(new THREE.HemisphereLight(0xe4f6ff, 0x687454, 2.1));
-const sun = new THREE.DirectionalLight(0xffedc2, 2.0); sun.position.set(-25,40,20); scene.add(sun);
-const mat = (color, roughness=1)=>new THREE.MeshStandardMaterial({color,roughness,flatShading:true});
+scene.add(new THREE.HemisphereLight(0xe4f6ff, 0x687454, 1.65));
+const sun = new THREE.DirectionalLight(0xfff0cf, 3.0); sun.position.set(-25,45,20); sun.castShadow=true; sun.shadow.mapSize.set(1024,1024); sun.shadow.camera.left=-55; sun.shadow.camera.right=55; sun.shadow.camera.top=55; sun.shadow.camera.bottom=-55; scene.add(sun);
+const mat = (color, roughness=.78, metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
 const groundMat = mat(0x71965b), roadMat=mat(0x424b55), lineMat=mat(0xf0d77b), sidewalkMat=mat(0xbab9a7);
 const ground = new THREE.Mesh(new THREE.PlaneGeometry(220,220),groundMat); ground.rotation.x=-Math.PI/2; ground.position.y=-.08; scene.add(ground);
 
-function box(w,h,d,material,x,y,z, parent=scene){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);parent.add(m);return m;}
+function box(w,h,d,material,x,y,z, parent=scene){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
+function sphere(r,material,x,y,z,parent){const m=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),material);m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;}
+function limb(a,b,r,material,parent){const start=new THREE.Vector3(...a),end=new THREE.Vector3(...b),dir=end.clone().sub(start);const m=new THREE.Mesh(new THREE.CylinderGeometry(r*.78,r,dir.length(),10),material);m.position.copy(start).add(end).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());m.castShadow=true;parent.add(m);return m;}
 function building(x,z,w,d,h,color){
  const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
  box(w,h,d,mat(color),0,h/2,0,g);
  box(w+.18,.28,d+.18,mat(0x555d68),0,h+.12,0,g);
- const win=mat(0x9ad4df);
+ const win=new THREE.MeshStandardMaterial({color:0x5c9baa,roughness:.28,metalness:.2});
  const rows=Math.max(1,Math.floor(h/2.4));
  for(let r=0;r<rows;r++) for(let c=0;c<Math.max(1,Math.floor(w/2.4));c++){
   const xx=-w/2+1+c*2.4, yy=1.4+r*2.4;
@@ -145,11 +147,14 @@ function building(x,z,w,d,h,color){
 }
 // Roads and simple city grid
 box(18,.03,210,roadMat,0,0,0); box(210,.03,18,roadMat,0,.005,0);
-for(let k=-90;k<=90;k+=5){box(1.8,.035,.13,lineMat,k,.035,0);box(.13,.035,1.8,lineMat,0,.035,k);}
+for(let k=-100;k<=100;k+=7){box(2.5,.04,.14,lineMat,k,.04,0);box(.14,.04,2.5,lineMat,0,.04,k);}
+const curbMat=mat(0xc5c5bc,.9);
+for(const s of [-1,1]){box(.5,.18,210,curbMat,s*9.25,.08,0);box(210,.18,.5,curbMat,0,.08,s*9.25);}
+
 for(let x=-80;x<=80;x+=22) for(let z=-80;z<=80;z+=22){
  if(Math.abs(x)<15||Math.abs(z)<15) continue;
  box(13,.12,13,sidewalkMat,x,.02,z);
- const h=5+Math.random()*14, w=7+Math.random()*4, d=7+Math.random()*4;
+ const h=8+Math.random()*20, w=8+Math.random()*5, d=8+Math.random()*5;
  building(x+(Math.random()-.5)*2,z+(Math.random()-.5)*2,w,d,h,[0xd9b68c,0xd5d9dc,0xc6a1a1,0xc7d0a4,0xb6c6d5][Math.floor(Math.random()*5)]);
 }
 // Park patches / trees
@@ -168,19 +173,57 @@ function makeLabel(text,color='#ffffff'){
 }
 function makeAvatar(p){
  const group=new THREE.Group();scene.add(group);
- const color=mat(p.color||0x38bdf8), skin=mat(0xd6a47c), dark=mat(0x24303a);
- box(.72,1,.42,color,0,1.05,0,group);
- const head=new THREE.Mesh(new THREE.BoxGeometry(.42,.42,.42),skin);head.position.y=1.78;group.add(head);
- box(.25,.16,.22,dark,-.2,.45,0,group);box(.25,.16,.22,dark,.2,.45,0,group);
- const label=makeLabel(p.name||'Player',p.color||'#ffffff');label.position.y=2.5;group.add(label);
- return {group,label,name:p.name, color:p.color, targetX:p.x||0,targetZ:p.z||0,targetYaw:p.yaw||0};
+ const shirtColor=new THREE.Color(p.color||0x1976d2);
+ const shirt=new THREE.MeshStandardMaterial({color:shirtColor,roughness:.72});
+ const pants=mat(0x202b3a,.86), skin=mat(0xc98f69,.78), shoes=mat(0x111820,.65), hair=mat(0x171515,.9);
+ // Torso and neck
+ const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.31,.48,4,8),shirt);torso.position.y=1.12;torso.castShadow=true;group.add(torso);
+ const neck=new THREE.Mesh(new THREE.CylinderGeometry(.095,.11,.15,10),skin);neck.position.y=1.52;group.add(neck);
+ const head=new THREE.Mesh(new THREE.SphereGeometry(.22,16,12),skin);head.position.y=1.76;head.scale.set(.88,1.12,.9);head.castShadow=true;group.add(head);
+ const hairCap=new THREE.Mesh(new THREE.SphereGeometry(.225,16,8,0,Math.PI*2,0,Math.PI*.58),hair);hairCap.position.y=1.83;hairCap.scale.set(.95,1,.95);group.add(hairCap);
+ // Face details
+ const eyeMat=mat(0x171717,.4);sphere(.025,eyeMat,-.075,1.79,.19,group);sphere(.025,eyeMat,.075,1.79,.19,group);
+ // arms and hands
+ limb([-.31,1.32,0],[-.43,.92,.015],.105,shirt,group);
+ limb([-.43,.92,.015],[-.44,.72,.07],.07,skin,group);
+ limb([.31,1.32,0],[.43,.92,.015],.105,shirt,group);
+ limb([.43,.92,.015],[.44,.72,.07],.07,skin,group);
+ // trousers, two legs, shoes
+ limb([-.14,.83,0],[-.16,.35,0],.115,pants,group);
+ limb([.14,.83,0],[.16,.35,0],.115,pants,group);
+ box(.22,.13,.38,shoes,-.16,.11,.075,group);box(.22,.13,.38,shoes,.16,.11,.075,group);
+ // small belt and clothing detail
+ box(.49,.07,.31,mat(0x111820),0,.84,0,group);
+ const label=makeLabel(p.name||'Player',p.color||'#ffffff');label.position.y=2.35;group.add(label);
+ return {group,label,name:p.name,color:p.color,targetX:p.x||0,targetZ:p.z||0,targetYaw:p.yaw||0};
 }
 function makeCar(x,z,color=0xe0a23b){
- const g=new THREE.Group();scene.add(g);g.position.set(x,.1,z);
- box(2.2,.65,4,mat(color),0,.65,0,g);box(1.55,.65,1.8,mat(0x8fc8d8),0,1.25,-.1,g);
- const wheelMat=mat(0x20242a);
- for(const wx of [-1.12,1.12])for(const wz of [-1.25,1.25]){
-  const w=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.22,8),wheelMat);w.rotation.z=Math.PI/2;w.position.set(wx,.35,wz);g.add(w);
+ const g=new THREE.Group();scene.add(g);g.position.set(x,.08,z);
+ const paint=new THREE.MeshStandardMaterial({color,roughness:.28,metalness:.42});
+ const glass=new THREE.MeshStandardMaterial({color:0x244b60,roughness:.18,metalness:.25});
+ const rubber=mat(0x16191d,.9), alloy=new THREE.MeshStandardMaterial({color:0x9ca9b4,metalness:.8,roughness:.25});
+ const lamp=new THREE.MeshStandardMaterial({color:0xfff0bf,emissive:0xffc95c,emissiveIntensity:.5});
+ const redLamp=new THREE.MeshStandardMaterial({color:0xd92525,emissive:0x5d0000});
+ // modern sports sedan body
+ box(2.05,.48,4.25,paint,0,.62,0,g);
+ box(1.78,.32,2.3,paint,0,.99,-.08,g);
+ const cabin=box(1.57,.67,1.92,glass,0,1.35,-.12,g);
+ // roof strip and front/rear glass highlights
+ box(1.48,.08,.82,paint,0,1.72,-.18,g);
+ box(1.5,.35,.045,glass,0,1.38,.83,g);
+ box(1.5,.34,.045,glass,0,1.38,-1.06,g);
+ // bumpers, grille, lights, mirrors
+ box(1.9,.16,.16,mat(0x20252a),0,.43,2.14,g);
+ box(1.9,.16,.16,mat(0x20252a),0,.43,-2.14,g);
+ box(.7,.18,.035,mat(0x101316),0,.57,2.22,g);
+ for(const wx of [-.68,.68]){box(.42,.14,.07,lamp,wx,.73,2.17,g);box(.38,.13,.07,redLamp,wx,.73,-2.17,g);}
+ for(const wx of [-1.03,1.03]){
+   box(.12,.12,.22,paint,wx,1.02,.35,g);
+   for(const wz of [-1.35,1.35]){
+     const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.37,.37,.22,16),rubber);wheel.rotation.z=Math.PI/2;wheel.position.set(wx,.38,wz);wheel.castShadow=true;g.add(wheel);
+     const hub=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.235,12),alloy);hub.rotation.z=Math.PI/2;hub.position.set(wx,.38,wz);g.add(hub);
+     const center=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.24,12),mat(0x313a43,.3,.7));center.rotation.z=Math.PI/2;center.position.set(wx,.38,wz);g.add(center);
+   }
  }
  const car={group:g,x,z,yaw:0};cars.push(car);return car;
 }
@@ -272,8 +315,8 @@ function update(dt){
  }
  for(const [id,p] of players){if(id===selfId)continue;p.group.position.x+=(p.targetX-p.group.position.x)*Math.min(1,dt*12);p.group.position.z+=(p.targetZ-p.group.position.z)*Math.min(1,dt*12);p.group.rotation.y=p.targetYaw;}
  const focus=(me&&joined)?(inCar&&activeCar?activeCar.group.position:me.group.position):new THREE.Vector3(0,0,0);
- const targetYaw=yaw;const distance=inCar?10:7;
- const desired=new THREE.Vector3(focus.x-Math.sin(targetYaw)*distance,focus.y+(inCar?5:3.6)+pitch*3,focus.z-Math.cos(targetYaw)*distance);
+ const targetYaw=yaw;const distance=inCar?11:8;
+ const desired=new THREE.Vector3(focus.x-Math.sin(targetYaw)*distance,focus.y+(inCar?5.4:4.1)+pitch*3,focus.z-Math.cos(targetYaw)*distance);
  camera.position.lerp(desired,Math.min(1,dt*5));camera.lookAt(focus.x,focus.y+(inCar?.8:1.1),focus.z);
 }
 let prev=performance.now();
