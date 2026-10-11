@@ -2,327 +2,162 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Senthamiz Role Play — City Edition</title>
-<meta name="description" content="Senthamiz Role Play low-poly 3D browser game demo with touch controls.">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Senthamiz Role Play — Open City</title>
+<meta name="description" content="Senthamiz Role Play, a mobile-friendly open city browser game prototype.">
 <style>
-:root{color-scheme:dark;font-family:system-ui,Segoe UI,Arial,sans-serif}
-*{box-sizing:border-box}body{margin:0;background:#101820;color:#f5f7fa;overflow:hidden}
-#game{position:fixed;inset:0}canvas{display:block}
-.panel{background:rgba(9,16,24,.82);border:1px solid rgba(255,255,255,.15);border-radius:12px;backdrop-filter:blur(8px)}
-#brand{position:fixed;top:14px;left:14px;padding:12px 15px;pointer-events:none}
-#brand strong{display:block;font-size:18px;letter-spacing:.6px}#brand small{color:#a9c3d7}
-#hud{position:fixed;right:14px;top:14px;padding:11px 14px;min-width:145px;font-size:13px}
-#help{position:fixed;left:14px;bottom:14px;padding:11px 14px;font-size:12px;color:#d4e0e8;line-height:1.7}
-#chat{position:fixed;right:14px;bottom:14px;width:min(330px,calc(100vw - 28px));height:220px;display:flex;flex-direction:column;padding:10px}
-#messages{flex:1;overflow:auto;font-size:12px;line-height:1.5;overflow-wrap:anywhere}
-#chatform{display:flex;gap:6px;margin-top:8px}input,button{font:inherit;border-radius:7px;border:1px solid #405364;background:#142331;color:#fff;padding:9px;min-width:0}
-input{flex:1}button{cursor:pointer;background:#0e7490;border-color:#0e7490;font-weight:700}
-#join{position:fixed;inset:0;display:grid;place-items:center;background:rgba(3,8,14,.78);z-index:5}
-#joinbox{width:min(390px,calc(100vw - 32px));padding:24px}#joinbox h1{margin:0 0 6px;font-size:26px}#joinbox p{color:#b8c8d6;font-size:14px;line-height:1.5}
-#joinform{display:flex;gap:8px}#joinform input{width:100%}
-#toast{position:fixed;top:90px;left:50%;transform:translateX(-50%);padding:8px 12px;font-size:12px;display:none}
-@media(max-width:650px){#help{max-width:48%;font-size:11px}#chat{height:185px;width:48%;right:8px;bottom:8px}#brand{top:8px;left:8px}#hud{right:8px;top:8px}}
-
-#mobile-controls{display:none;position:fixed;inset:0;pointer-events:none;z-index:3}
-.touch-cluster{position:absolute;bottom:205px;left:14px;display:grid;grid-template-columns:repeat(3,54px);grid-template-rows:repeat(2,54px);gap:5px;pointer-events:auto}
-.touch-btn{touch-action:none;user-select:none;-webkit-user-select:none;display:grid;place-items:center;background:rgba(8,20,30,.68);border:1px solid rgba(220,240,255,.45);border-radius:13px;color:#fff;font-size:19px;font-weight:800;padding:0;min-width:0}
-.touch-btn:active,.touch-btn.pressed{background:rgba(14,116,144,.92)}
-#touch-up{grid-column:2;grid-row:1}#touch-left{grid-column:1;grid-row:2}#touch-down{grid-column:2;grid-row:2}#touch-right{grid-column:3;grid-row:2}
-#touch-actions{position:absolute;right:14px;bottom:205px;display:flex;flex-direction:column;gap:9px;pointer-events:auto}
-#touch-actions .touch-btn{width:64px;height:58px;font-size:12px}
-#look-hint{position:absolute;right:95px;bottom:215px;color:rgba(255,255,255,.75);font-size:10px;text-align:center;max-width:90px;text-shadow:0 1px 4px #000}
-@media (pointer:coarse), (max-width:800px){
- #mobile-controls{display:block}
- #help{bottom:8px;left:8px;max-width:46%;font-size:10px;line-height:1.45}
- #chat{bottom:8px;right:8px;height:150px;width:48%;padding:7px}
- #chat input{padding:7px;font-size:12px}#chat button{padding:7px}
- #hud{top:8px;right:8px;padding:8px;font-size:11px;min-width:120px}
- #brand{top:8px;left:8px;padding:8px 10px}#brand strong{font-size:14px}#brand small{font-size:10px}
- .touch-cluster{bottom:170px;left:10px;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(2,48px)}
- #touch-actions{bottom:170px;right:10px}#touch-actions .touch-btn{width:57px;height:52px}
- #look-hint{bottom:177px;right:75px}
-}
-
+:root{--glass:rgba(9,18,28,.82);--line:rgba(211,235,255,.35);--cyan:#61d8ff;--white:#f4f8fb}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#91cde9;color:var(--white);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;touch-action:none}
+#game{position:fixed;inset:0}canvas{display:block;width:100%;height:100%}
+.panel{background:var(--glass);border:1px solid var(--line);box-shadow:0 8px 30px #0005;backdrop-filter:blur(10px);border-radius:17px}
+#brand{position:fixed;top:max(10px,env(safe-area-inset-top));left:12px;padding:10px 14px;max-width:70vw;pointer-events:none}
+#brand b{font-size:clamp(13px,2.5vw,19px);letter-spacing:.08em}#brand small{display:block;color:#b7d5e5;margin-top:3px;font-size:11px}
+#hud{position:fixed;right:12px;top:max(10px,env(safe-area-inset-top));padding:10px 12px;font-size:12px;line-height:1.45;min-width:112px}
+#hud strong{color:#7de1ff}
+#mission{position:fixed;top:88px;left:12px;padding:8px 12px;font-size:12px;max-width:58vw}
+#controls{position:fixed;left:14px;bottom:max(18px,env(safe-area-inset-bottom));width:190px;height:145px}
+.ctrl{position:absolute;width:58px;height:52px;border-radius:14px;border:1px solid #a8d7ed77;background:#0b1825d9;color:white;font-size:20px;font-weight:800;box-shadow:0 4px 14px #0004;touch-action:none}
+.ctrl:active,.action:active{background:#126a86e8;transform:scale(.97)}
+#up{left:66px;top:0}#left{left:0;top:62px}#down{left:66px;top:62px}#right{left:132px;top:62px}
+#actions{position:fixed;right:12px;bottom:max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px}
+.action{min-width:68px;padding:12px 10px;border-radius:15px;border:1px solid #a8d7ed77;background:#0b1825df;color:#fff;font-weight:800;font-size:12px;touch-action:manipulation}
+#hint{position:fixed;left:12px;bottom:174px;padding:8px 10px;font-size:11px;color:#d4e7f0;max-width:190px}
+#phone{position:fixed;right:12px;top:100px;width:min(270px,76vw);display:none;padding:12px}
+#phone h3,#shop h3{margin:0 0 8px;font-size:14px}
+.phonegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.app{border:1px solid #a6cce344;background:#20394c;border-radius:12px;padding:12px 4px;text-align:center;font-size:11px}
+#phoneClose,#chatClose{float:right}
+#chat{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(390px,90vw);padding:14px;display:none}
+#chatlog{height:140px;overflow:auto;font-size:12px;color:#c8e1ef;padding:8px;background:#07121b88;border-radius:10px;margin:8px 0}
+input{background:#0b1d2a;color:#fff;border:1px solid #7eb4cc66;border-radius:10px;padding:11px;min-width:0;width:100%}
+.row{display:flex;gap:7px}
+#join{position:fixed;inset:0;background:linear-gradient(150deg,#17364bde,#08111def);display:flex;align-items:center;justify-content:center;padding:18px}
+#joinbox{width:min(420px,94vw);padding:24px;text-align:center}
+#joinbox h1{font-size:clamp(25px,6vw,38px);margin:0 0 6px;letter-spacing:.02em}
+#joinbox p{color:#bdd5e4;font-size:13px;line-height:1.5}
+#joinbox button{margin-top:12px;width:100%;padding:14px;border:0;border-radius:12px;background:linear-gradient(90deg,#0b9ec3,#43c8f0);color:#052333;font-weight:900;font-size:16px}
+#notice{position:fixed;left:50%;top:18%;transform:translateX(-50%);padding:10px 15px;display:none;text-align:center;font-size:12px;max-width:85vw}
+#shop{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);width:min(320px,90vw);padding:15px;display:none}
+#shop button{margin-top:7px}
+#crosshair{position:fixed;left:50%;top:50%;width:8px;height:8px;border:1px solid #ffffff99;border-radius:50%;transform:translate(-50%,-50%);pointer-events:none}
+@media(min-width:800px){#controls{transform:scale(1.05);transform-origin:bottom left}#hint{max-width:230px}}
 </style>
 </head>
 <body>
 <div id="game"></div>
-<div id="brand" class="panel"><strong>ச SENTHAMIZ ROLE PLAY</strong><small>City Edition · Third-person driving</small></div>
-<div id="hud" class="panel">Status: <b id="status">Connecting…</b><br>Players online: <b id="count">0</b><br>Mode: <b id="mode">On foot</b></div>
-<div id="help" class="panel">WASD / Arrow keys — Move<br>Mouse drag — Look around<br>E — Enter / exit nearby car<br>Enter — Chat · Esc — close chat<br><span style="color:#8dd8f0">City Edition preview · Single player · Internet needed to load 3D engine.</span></div>
-<div id="chat" class="panel"><b style="font-size:13px;margin-bottom:6px">CITY CHAT</b><div id="messages"><div style="color:#9eb3c3">Welcome to Senthamiz City. Be respectful!</div></div><form id="chatform"><input id="chatinput" maxlength="180" placeholder="Type a message…" autocomplete="off"><button>Send</button></form></div>
-<div id="toast" class="panel"></div>
-
-<div id="mobile-controls" aria-label="Touch game controls">
-  <div class="touch-cluster">
-    <button class="touch-btn" id="touch-up" aria-label="Move forward">▲</button>
-    <button class="touch-btn" id="touch-left" aria-label="Move left">◀</button>
-    <button class="touch-btn" id="touch-down" aria-label="Move backward">▼</button>
-    <button class="touch-btn" id="touch-right" aria-label="Move right">▶</button>
-  </div>
-  <div id="look-hint">Drag right side<br>to look around</div>
-  <div id="touch-actions">
-    <button class="touch-btn" id="touch-run">RUN</button>
-    <button class="touch-btn" id="touch-car">CAR<br>E</button>
-    <button class="touch-btn" id="touch-chat">CHAT</button>
-  </div>
+<div id="brand" class="panel"><b>◈ SENTHAMIZ ROLE PLAY</b><small>OPEN CITY • MOBILE EDITION</small></div>
+<div id="hud" class="panel"><strong id="status">CITY LIFE</strong><br>Mode: <span id="mode">On foot</span><br>Cash: ₹<span id="cash">2500</span><br>Area: <span id="area">Central City</span></div>
+<div id="mission" class="panel">Explore the city · Find a car · Visit the shops</div>
+<div id="controls">
+<button class="ctrl" id="up" aria-label="Forward">▲</button><button class="ctrl" id="left" aria-label="Left">◀</button><button class="ctrl" id="down" aria-label="Back">▼</button><button class="ctrl" id="right" aria-label="Right">▶</button>
 </div>
-
-<div id="join"><div id="joinbox" class="panel"><h1>Senthamiz Role Play</h1><p>Explore Senthamiz City in a third-person 3D sandbox. Walk around and drive cars right in your browser.</p><form id="joinform"><input id="name" maxlength="18" placeholder="Your RP name" value="Suriya" required><button>PLAY</button></form><p style="font-size:11px">Fan-made browser prototype · Not affiliated with GTA or Rockstar Games.</p></div></div>
-
-<script type="module">
-import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
-
-
-// Browser-only demo transport: local play without installing a server.
-const localHandlers = {};
-const localSocket = {
-  id: 'local-player',
-  on(event, cb) { (localHandlers[event] ||= []).push(cb); },
-  emit(event, data) {
-    if (event === 'join') {
-      const p = {
-        id: 'local-player',
-        name: String(data || 'Player').replace(/[<>]/g, '').trim().slice(0, 18) || 'Player',
-        x: 0, z: 0, yaw: 0, color: '#38bdf8', inCar: false
-      };
-      setTimeout(() => {
-        (localHandlers['welcome'] || []).forEach(cb => cb({self:p, players:[p]}));
-        (localHandlers['count'] || []).forEach(cb => cb(1));
-      }, 40);
-    } else if (event === 'chat') {
-      const me = players.get('local-player');
-      (localHandlers['chat'] || []).forEach(cb => cb({name: me?.name || 'Player', message:String(data || ''), color:me?.color || '#38bdf8'}));
-    }
-  }
-};
-const socket = localSocket;
-
-const root = document.getElementById('game');
-const statusEl = document.getElementById('status');
-statusEl.textContent = 'Browser demo';
-const countEl = document.getElementById('count');
-const modeEl = document.getElementById('mode');
-const messages = document.getElementById('messages');
-const chatInput = document.getElementById('chatinput');
-const chatBox = document.getElementById('chat');
-const join = document.getElementById('join');
-let joined = false, selfId = null, myName = 'Player', inCar = false, activeCar = null;
-let yaw = 0, pitch = 0.16, lastSend = 0;
-const keys = {};
-const players = new Map();
-const cars = [];
-const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xb8d9e8);
-scene.fog = new THREE.Fog(0xb8d9e8, 75, 220);
-const camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, .1, 220);
-const renderer = new THREE.WebGLRenderer({antialias:false, powerPreference:'low-power'});
-renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5));
-renderer.setSize(innerWidth, innerHeight);
-renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-root.appendChild(renderer.domElement);
-
-scene.add(new THREE.HemisphereLight(0xe4f6ff, 0x687454, 1.65));
-const sun = new THREE.DirectionalLight(0xfff0cf, 3.0); sun.position.set(-25,45,20); sun.castShadow=true; sun.shadow.mapSize.set(1024,1024); sun.shadow.camera.left=-55; sun.shadow.camera.right=55; sun.shadow.camera.top=55; sun.shadow.camera.bottom=-55; scene.add(sun);
-const mat = (color, roughness=.78, metalness=0)=>new THREE.MeshStandardMaterial({color,roughness,metalness});
-const groundMat = mat(0x71965b), roadMat=mat(0x424b55), lineMat=mat(0xf0d77b), sidewalkMat=mat(0xbab9a7);
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(220,220),groundMat); ground.rotation.x=-Math.PI/2; ground.position.y=-.08; scene.add(ground);
-
-function box(w,h,d,material,x,y,z, parent=scene){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;parent.add(m);return m;}
-function sphere(r,material,x,y,z,parent){const m=new THREE.Mesh(new THREE.SphereGeometry(r,14,10),material);m.position.set(x,y,z);m.castShadow=true;parent.add(m);return m;}
-function limb(a,b,r,material,parent){const start=new THREE.Vector3(...a),end=new THREE.Vector3(...b),dir=end.clone().sub(start);const m=new THREE.Mesh(new THREE.CylinderGeometry(r*.78,r,dir.length(),10),material);m.position.copy(start).add(end).multiplyScalar(.5);m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),dir.normalize());m.castShadow=true;parent.add(m);return m;}
-function building(x,z,w,d,h,color){
- const g=new THREE.Group();g.position.set(x,0,z);scene.add(g);
- box(w,h,d,mat(color),0,h/2,0,g);
- box(w+.18,.28,d+.18,mat(0x555d68),0,h+.12,0,g);
- const win=new THREE.MeshStandardMaterial({color:0x5c9baa,roughness:.28,metalness:.2});
- const rows=Math.max(1,Math.floor(h/2.4));
- for(let r=0;r<rows;r++) for(let c=0;c<Math.max(1,Math.floor(w/2.4));c++){
-  const xx=-w/2+1+c*2.4, yy=1.4+r*2.4;
-  if(Math.abs(xx)<w/2-.4 && yy<h-.5){box(.65,.85,.035,win,xx,yy,d/2+.02,g);box(.65,.85,.035,win,xx,yy,-d/2-.02,g);}
- }
- return g;
+<div id="hint" class="panel">Hold arrows to move/drive. Drag the open screen to look around. Tap CAR near a vehicle.</div>
+<div id="actions"><button class="action" id="run">RUN</button><button class="action" id="car">CAR</button><button class="action" id="phoneBtn">📱 PHONE</button><button class="action" id="shopBtn">SHOP</button><button class="action" id="chatBtn">CHAT</button></div>
+<div id="phone" class="panel"><button class="action" id="phoneClose">✕</button><h3>📱 SURIYA PHONE</h3><p style="font-size:11px;color:#bdd5e4">Senthamiz mobile services</p><div class="phonegrid"><div class="app">☎️<br>Calls</div><div class="app">🗺️<br>Map</div><div class="app">💬<br>Messages</div><div class="app">🚕<br>Taxi</div><div class="app">🏪<br>Shops</div><div class="app">⚙️<br>Settings</div></div><p id="phoneMsg" style="font-size:11px;color:#7de1ff">Welcome to Senthamiz City.</p></div>
+<div id="chat" class="panel"><button class="action" id="chatClose">✕</button><h3>🏙️ CITY CHAT</h3><div id="chatlog">Welcome to Senthamiz City. Be respectful!<br></div><div class="row"><input id="chatInput" placeholder="Type a message..."><button class="action" id="send">SEND</button></div></div>
+<div id="shop" class="panel"><button class="action" id="shopClose">✕</button><h3 id="shopTitle">CITY SHOP</h3><p id="shopText" style="font-size:12px;color:#c4dbe8">Welcome!</p><button class="action" id="buy">Buy snack · ₹50</button></div>
+<div id="notice" class="panel"></div><div id="crosshair"></div>
+<div id="join"><div id="joinbox" class="panel"><h1>SENTHAMIZ<br>ROLE PLAY</h1><p>Welcome to your city. Drive cars, explore the shopping street, meet city residents and climb the mountain to see the giant Senthamiz sign.</p><input id="playerName" maxlength="16" value="Suriya" placeholder="Your character name"><button id="play">ENTER CITY</button><p style="font-size:10px">Browser game prototype • Single player • Internet needed for 3D engine</p></div></div>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id);let scene,camera,renderer,clock,player,avatar,activeCar=null,carObjects=[],npcs=[],shops=[],keys={},cameraYaw=0,cameraPitch=.12,drag=null,running=false,cash=2500,speed=0,chatOpen=false;
+const mats={};
+function mat(c,r=.8,m=0){let k=c+'|'+r+'|'+m;if(!mats[k])mats[k]=new THREE.MeshStandardMaterial({color:c,roughness:r,metalness:m});return mats[k]}
+function box(w,h,d,m,x,y,z,parent=scene){let o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y,z);o.castShadow=true;o.receiveShadow=true;parent.add(o);return o}
+function cyl(rt,rb,h,m,x,y,z,parent=scene,n=12){let o=new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,n),m);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o}
+function sphere(r,m,x,y,z,parent=scene){let o=new THREE.Mesh(new THREE.SphereGeometry(r,16,12),m);o.position.set(x,y,z);o.castShadow=true;parent.add(o);return o}
+function limb(a,b,r,m,p){let s=new THREE.Vector3(...a),e=new THREE.Vector3(...b),v=e.clone().sub(s);let o=new THREE.Mesh(new THREE.CylinderGeometry(r*.78,r,v.length(),10),m);o.position.copy(s).add(e).multiplyScalar(.5);o.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),v.normalize());o.castShadow=true;p.add(o);return o}
+function label(text,color='#ffffff',scale=1){let c=document.createElement('canvas');c.width=512;c.height=128;let x=c.getContext('2d');x.fillStyle='rgba(8,20,31,.8)';x.roundRect(4,4,504,120,18);x.fill();x.font='bold 42px system-ui';x.textAlign='center';x.fillStyle=color;x.fillText(text,256,78);let t=new THREE.CanvasTexture(c);let s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true}));s.scale.set(4*scale,1*scale,1);return s}
+function makeHuman(name,color,x,z,isNPC=false){let g=new THREE.Group();scene.add(g);g.position.set(x,0,z);let shirt=mat(color,.65),skin=mat(0xb9805b),pants=mat(isNPC?0x35465a:0x202c3a),hair=mat(0x17191c),shoe=mat(0x101418);
+let torso=new THREE.Mesh(new THREE.CapsuleGeometry(.29,.48,4,10),shirt);torso.position.y=1.14;torso.castShadow=true;g.add(torso);
+cyl(.09,.1,.15,skin,0,1.5,0,g,10);let head=sphere(.205,skin,0,1.73,0,g);head.scale.set(.9,1.1,.9);
+let cap=new THREE.Mesh(new THREE.SphereGeometry(.21,16,10,0,Math.PI*2,0,Math.PI*.62),hair);cap.position.y=1.79;g.add(cap);
+sphere(.023,mat(0x151515),-.07,1.75,.18,g);sphere(.023,mat(0x151515),.07,1.75,.18,g);
+limb([-.3,1.34,0],[-.42,.93,.02],.095,shirt,g);limb([-.42,.93,.02],[-.44,.73,.05],.065,skin,g);
+limb([.3,1.34,0],[.42,.93,.02],.095,shirt,g);limb([.42,.93,.02],[.44,.73,.05],.065,skin,g);
+limb([-.13,.85,0],[-.15,.32,0],.11,pants,g);limb([.13,.85,0],[.15,.32,0],.11,pants,g);
+box(.2,.12,.34,shoe,-.15,.1,.06,g);box(.2,.12,.34,shoe,.15,.1,.06,g);
+let tag=label(name,isNPC?'#d8f4ff':'#72e5ff',.78);tag.position.y=2.45;g.add(tag);
+return {group:g,name,isNPC,phase:Math.random()*6.28,originX:x,originZ:z,tag};
 }
-// Roads and simple city grid
-box(18,.03,210,roadMat,0,0,0); box(210,.03,18,roadMat,0,.005,0);
-for(let k=-100;k<=100;k+=7){box(2.5,.04,.14,lineMat,k,.04,0);box(.14,.04,2.5,lineMat,0,.04,k);}
-const curbMat=mat(0xc5c5bc,.9);
-for(const s of [-1,1]){box(.5,.18,210,curbMat,s*9.25,.08,0);box(210,.18,.5,curbMat,0,.08,s*9.25);}
-
-for(let x=-80;x<=80;x+=22) for(let z=-80;z<=80;z+=22){
- if(Math.abs(x)<15||Math.abs(z)<15) continue;
- box(13,.12,13,sidewalkMat,x,.02,z);
- const h=8+Math.random()*20, w=8+Math.random()*5, d=8+Math.random()*5;
- building(x+(Math.random()-.5)*2,z+(Math.random()-.5)*2,w,d,h,[0xd9b68c,0xd5d9dc,0xc6a1a1,0xc7d0a4,0xb6c6d5][Math.floor(Math.random()*5)]);
+function makeCar(x,z,color,name,rot=0){let g=new THREE.Group();scene.add(g);g.position.set(x,.06,z);g.rotation.y=rot;let paint=new THREE.MeshStandardMaterial({color,roughness:.27,metalness:.48}),glass=new THREE.MeshStandardMaterial({color:0x254657,roughness:.16,metalness:.2}),rubber=mat(0x15181b,.95),rim=new THREE.MeshStandardMaterial({color:0xb6c3cd,metalness:.85,roughness:.22});
+box(2.08,.48,4.35,paint,0,.6,0,g);box(1.78,.32,2.3,paint,0,.97,-.12,g);box(1.55,.61,1.95,glass,0,1.32,-.18,g);box(1.42,.07,.82,paint,0,1.65,-.18,g);
+box(1.92,.14,.15,mat(0x252a30),0,.42,2.2,g);box(1.92,.14,.15,mat(0x252a30),0,.42,-2.2,g);box(.65,.15,.04,mat(0x101316),0,.57,2.22,g);
+for(let wx of [-.72,.72]){box(.42,.12,.05,mat(0xfff1bd,.3),wx,.72,2.17,g);box(.4,.12,.05,mat(0xd52929),wx,.72,-2.17,g)}
+for(let wx of [-1.04,1.04])for(let wz of [-1.38,1.38]){let w=cyl(.36,.36,.22,rubber,wx,.37,wz,g,18);w.rotation.z=Math.PI/2;let h=cyl(.18,.18,.235,rim,wx,.37,wz,g,12);h.rotation.z=Math.PI/2}
+let v={group:g,x,z,rot,name,color,occupied:false};carObjects.push(v);return v}
+function init(){
+scene=new THREE.Scene();scene.background=new THREE.Color(0x87c9ee);scene.fog=new THREE.Fog(0x9fcde1,130,420);
+camera=new THREE.PerspectiveCamera(62,innerWidth/innerHeight,.1,700);
+renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});renderer.setPixelRatio(Math.min(devicePixelRatio,1.6));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;$('game').appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xdff5ff,0x63734d,2));
+let sun=new THREE.DirectionalLight(0xffefce,3.1);sun.position.set(-80,140,65);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);sun.shadow.camera.left=-170;sun.shadow.camera.right=170;sun.shadow.camera.top=170;sun.shadow.camera.bottom=-170;scene.add(sun);
+clock=new THREE.Clock();
+let ground=mat(0x65905b);box(700,.5,700,ground,0,-.35,0);
+let asphalt=mat(0x343c43,.95),line=mat(0xf4d76b,.7),side=mat(0xc3c4b8),walk=mat(0x777e80);
+box(18,.08,430,asphalt,0,.01,0);box(430,.08,18,asphalt,0,.02,0);
+for(let k=-210;k<=210;k+=9){box(.16,.035,3.7,line,0,.07,k);box(3.7,.035,.16,line,k,.07,0)}
+for(let s of [-1,1]){box(.6,.25,430,side,s*9.4,.08,0);box(430,.25,.6,side,0,.08,s*9.4);box(4,.08,430,walk,s*12,.06,0);box(430,.08,4,walk,0,.06,s*12)}
+// district blocks with colourful buildings, windows and shops
+const colors=[0xb9a58c,0x879ba7,0xc7b9a4,0x8a9b8f,0x9b8b82,0x748b9b,0xc5a88d];
+for(let bx=-150;bx<=150;bx+=30)for(let bz=-150;bz<=150;bz+=30){
+ if(Math.abs(bx)<23||Math.abs(bz)<23)continue;
+ let w=12+Math.random()*8,d=12+Math.random()*8,h=10+Math.random()*28,x=bx+(Math.random()-.5)*5,z=bz+(Math.random()-.5)*5;
+ box(w,h,d,mat(colors[Math.floor(Math.random()*colors.length)]),x,h/2,z);
+ let win=mat(0x69a8bc,.35,.15);
+ for(let yy=3;yy<h-1;yy+=3.5)for(let xx=-w/2+1.3;xx<w/2-1;xx+=2.8){box(.95,1.25,.06,win,x+xx,yy,z+d/2+.04);box(.06,1.25,.95,win,x+w/2+.04,yy,z+xx)}
+ // rooftops
+ box(w*.65,.28,d*.55,mat(0x666b6b),x,h+.14,z);
 }
-// Park patches / trees
-for(let i=0;i<24;i++){
- const x=(Math.random()-.5)*180,z=(Math.random()-.5)*180;
- if(Math.abs(x)<14||Math.abs(z)<14) continue;
- const trunk=mat(0x6d4b32), leaves=mat([0x3d794b,0x4f8c50,0x6b9952][i%3]);
- box(.45,1.5,.45,trunk,x,.75,z);
- const crown=new THREE.Mesh(new THREE.ConeGeometry(1.5,3,5),leaves);crown.position.set(x,2.6,z);scene.add(crown);
+// store fronts on the central streets
+function makeShop(x,z,rot,title,accent){let g=new THREE.Group();scene.add(g);g.position.set(x,0,z);g.rotation.y=rot;box(9,4.2,5,mat(0xd6d0c4),0,2.1,0,g);box(9.1,.8,.18,mat(accent),0,3.55,2.56,g);box(3.6,2.3,.12,mat(0x39778a,.3),-2.2,1.5,2.57,g);box(1.1,2.5,.15,mat(0x5b4535),2.25,1.3,2.58,g);let sign=label(title,'#ffffff',1.1);sign.position.set(0,4.1,2.75);g.add(sign);shops.push({x,z,title,group:g});}
+makeShop(-19,30,0,'MART',0x137c8b);makeShop(19,30,Math.PI,'FASHION',0x9b3976);makeShop(-30,-19,Math.PI/2,'CAFE',0x9b5d22);makeShop(30,-19,-Math.PI/2,'MOBILE',0x2167aa);makeShop(-19,-42,0,'GARAGE',0x555f70);makeShop(19,-42,Math.PI,'MARKET',0x2c8958);
+for(let i=0;i<25;i++){let x=(Math.random()-.5)*290,z=(Math.random()-.5)*290;if(Math.abs(x)<20||Math.abs(z)<20)continue;let trunk=cyl(.35,.5,2,mat(0x67452c),x,1,z);let leaf=sphere(2.3,mat(i%2?0x327b49:0x438c50),x,3,z);}
+// mountain on north edge and giant Senthamiz sign
+let mountainMat=mat(0x586f63),rock=mat(0x788176);for(let i=0;i<8;i++){let x=-95+i*25,z=-190-(Math.random()*18),h=28+Math.random()*28;let m=new THREE.Mesh(new THREE.ConeGeometry(20+Math.random()*12,h,6),mountainMat);m.position.set(x,h/2-1,z);m.castShadow=true;scene.add(m);let snow=new THREE.Mesh(new THREE.ConeGeometry(8,h*.23,6),mat(0xc4d8df));snow.position.set(x,h*.87,z);scene.add(snow)}
+let signGroup=new THREE.Group();scene.add(signGroup);signGroup.position.set(0,29,-205);box(31,8,1.1,mat(0x171e2b),0,0,0,signGroup);box(30.2,7.2,.12,mat(0x1c4555),0,0,.6,signGroup);let sign=label('SENTHAMIZ ROLE PLAY','#70eaff',5.2);sign.position.set(0,.4,1.0);signGroup.add(sign);for(let x of [-13,13])box(.7,19,.7,mat(0x4a4f55),x,-13,0,signGroup);
+// road lamps
+for(let z=-180;z<=180;z+=30)for(let s of [-1,1]){cyl(.1,.14,5,mat(0x4c555d),s*13,2.5,z);box(.9,.12,.25,mat(0xf7e7a6),s*13,5,z)}
+// parked and drivable cars
+const carSpecs=[[-5,7,0xd13d38,'SPORT'],[6,13,0x2376b9,'SEDAN'],[-6,25,0xe5e6e8,'COUPE'],[9,-7,0x1d262e,'SUV'],[-13,-30,0xdaa93c,'TAXI'],[12,-30,0x33845c,'HATCH'],[-34,6,0x762f9c,'SPORT'],[36,8,0xc8cbd0,'SEDAN'],[-8,50,0x1c4f81,'SUV'],[12,54,0x9e3d39,'COUPE'],[-50,-10,0x228b91,'VAN'],[48,-15,0xb7b7b7,'SPORT']];
+carSpecs.forEach(a=>makeCar(a[0],a[1],a[2],a[3],Math.random()<.5?0:Math.PI));
+player={x:0,z:2,yaw:0,run:false};avatar=makeHuman('Suriya',0x167ba2,0,2,false);
+const npcNames=['Kavin','Arun','Meena','Priya','Vijay','Divya','Ravi','Anu','Karthik','Nila','Madhan','Kavi'];for(let i=0;i<24;i++){let x=(Math.random()-.5)*140,z=(Math.random()-.5)*140;if(Math.abs(x)<12&&Math.abs(z)<12)x+=22;let n=makeHuman(npcNames[i%npcNames.length],[0xc76c48,0x4b8e68,0x9b6bc1,0x267da4,0xc59b36][i%5],x,z,true);npcs.push(n)}
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 }
-function makeLabel(text,color='#ffffff'){
- const c=document.createElement('canvas');c.width=256;c.height=64;const ctx=c.getContext('2d');
- ctx.fillStyle='rgba(8,15,22,.75)';ctx.fillRect(0,0,256,64);ctx.fillStyle=color;ctx.font='bold 25px sans-serif';ctx.textAlign='center';ctx.fillText(text.slice(0,18),128,40);
- const tex=new THREE.CanvasTexture(c);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));
- sprite.scale.set(3.3,.82,1);return sprite;
+function toast(msg){$('notice').textContent=msg;$('notice').style.display='block';setTimeout(()=>$('notice').style.display='none',2200)}
+function closestCar(){let best=null,dist=6;for(let c of carObjects){let d=Math.hypot(c.group.position.x-player.x,c.group.position.z-player.z);if(d<dist){dist=d;best=c}}return best}
+function enterCar(){if(activeCar){activeCar.occupied=false;player.x=activeCar.group.position.x+2.3;player.z=activeCar.group.position.z;player.yaw=activeCar.group.rotation.y;activeCar=null;avatar.group.visible=true;$('mode').textContent='On foot';toast('Exited vehicle');return}let c=closestCar();if(!c){toast('Walk closer to a car first');return}activeCar=c;c.occupied=true;avatar.group.visible=false;player.x=c.group.position.x;player.z=c.group.position.z;player.yaw=c.group.rotation.y;$('mode').textContent='Driving '+c.name;toast('Driving '+c.name+' · Hold ▲ to accelerate')}
+function phone(){let p=$('phone');p.style.display=p.style.display==='block'?'none':'block';}
+function openShop(){let best=null,d=7;for(let s of shops){let nd=Math.hypot(s.x-player.x,s.z-player.z);if(nd<d){best=s;d=nd}}if(!best){toast('Move close to a shop entrance');return}$('shopTitle').textContent=best.title+' STORE';$('shopText').textContent='Welcome to '+best.title+' in Senthamiz City. This shop is open in the demo.';$('shop').style.display='block'}
+function movement(dt){let f=(keys.up?1:0)-(keys.down?1:0),side=(keys.right?1:0)-(keys.left?1:0);
+if(activeCar){let c=activeCar;let accel=f*22;speed=Math.max(-8,Math.min(30,speed+accel*dt));if(!f)speed*=Math.pow(.08,dt);c.group.rotation.y-=side*dt*Math.min(1.8,Math.abs(speed)/6);let nx=c.group.position.x+Math.sin(c.group.rotation.y)*speed*dt,nz=c.group.position.z+Math.cos(c.group.rotation.y)*speed*dt;if(Math.abs(nx)<320&&Math.abs(nz)<320){c.group.position.x=nx;c.group.position.z=nz}player.x=c.group.position.x;player.z=c.group.position.z;player.yaw=c.group.rotation.y;return}
+speed=0;if(!f&&!side)return;let rate=player.run?8.5:4.3;let forwardX=Math.sin(player.yaw),forwardZ=Math.cos(player.yaw),rightX=Math.cos(player.yaw),rightZ=-Math.sin(player.yaw);player.x+=(forwardX*f+rightX*side)*rate*dt;player.z+=(forwardZ*f+rightZ*side)*rate*dt;player.x=Math.max(-315,Math.min(315,player.x));player.z=Math.max(-315,Math.min(315,player.z));avatar.group.position.set(player.x,0,player.z);if(f||side){let dx=forwardX*f+rightX*side,dz=forwardZ*f+rightZ*side;player.yaw=Math.atan2(dx,dz);avatar.group.rotation.y=player.yaw}}
+function updateNPC(dt,t){for(let n of npcs){if(!n.isNPC)continue;n.phase+=dt*.4;n.group.position.x=n.originX+Math.sin(n.phase)*1.7;n.group.position.z=n.originZ+Math.cos(n.phase*.8)*1.5;n.group.rotation.y=Math.sin(n.phase)*.5}}
+function updateCamera(dt){let target;if(activeCar)target=activeCar.group.position.clone().add(new THREE.Vector3(0,1.2,0));else target=new THREE.Vector3(player.x,1.35,player.z);let distance=activeCar?11:7.5;let yaw=player.yaw+cameraYaw;let offset=new THREE.Vector3(Math.sin(yaw)*distance,3.0+cameraPitch*4,Math.cos(yaw)*distance);let wanted=target.clone().add(offset);camera.position.lerp(wanted,Math.min(1,dt*5));camera.lookAt(target.x,target.y+.4,target.z);if(activeCar){activeCar.group.position.y=.06+Math.sin(performance.now()*.008)*Math.min(.03,Math.abs(speed)*.001)}}
+function updateArea(){let area='Central City';if(player.z<-130)area='Mountain Road';else if(Math.abs(player.x)>75||Math.abs(player.z)>75)area='Outer District';else if(Math.abs(player.x)<35&&player.z>18&&player.z<60)area='Shopping Street';$('area').textContent=area;$('cash').textContent=cash}
+function animate(){requestAnimationFrame(animate);let dt=Math.min(.05,clock.getDelta()),t=clock.elapsedTime;movement(dt);updateNPC(dt,t);updateCamera(dt);updateArea();renderer.render(scene,camera)}
+function bindHold(id,key){let el=$(id);const on=e=>{e.preventDefault();keys[key]=true;el.setPointerCapture?.(e.pointerId)};const off=e=>{keys[key]=false};el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('lostpointercapture',off)}
+function setupUI(){
+[['up','up'],['down','down'],['left','left'],['right','right']].forEach(a=>bindHold(...a));
+$('run').onclick=()=>{player.run=!player.run;$('run').textContent=player.run?'WALK':'RUN';toast(player.run?'Running enabled':'Walking')};
+$('car').onclick=enterCar;$('shopBtn').onclick=openShop;$('phoneBtn').onclick=phone;$('phoneClose').onclick=phone;$('chatBtn').onclick=()=>{$('chat').style.display='block';$('chatInput').focus()};$('chatClose').onclick=()=>$('chat').style.display='none';
+$('send').onclick=()=>{let v=$('chatInput').value.trim();if(!v)return;let log=$('chatlog');log.innerHTML+='<br><b style="color:#7de1ff">Suriya:</b> '+v.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));log.scrollTop=log.scrollHeight;$('chatInput').value=''};
+$('chatInput').addEventListener('keydown',e=>{if(e.key==='Enter')$('send').click()});
+$('shopClose').onclick=()=>$('shop').style.display='none';$('buy').onclick=()=>{if(cash>=50){cash-=50;$('cash').textContent=cash;toast('Snack purchased · ₹50')}else toast('Not enough cash')};
+document.querySelectorAll('.app').forEach((el,i)=>el.onclick=()=>{let msgs=['Phone calls are coming soon.','Map: Central City · Shopping Street · Mountain Road','No new messages.','Taxi service coming soon.','Walk to a shop and tap SHOP to visit it.','Settings saved.'];$('phoneMsg').textContent=msgs[i]});
+$('play').onclick=()=>{let name=$('playerName').value.trim()||'Suriya';avatar.group.traverse(o=>{if(o.isSprite&&o.material.map){o.material.map.dispose()} });avatar.group.remove(avatar.tag);avatar.name=name;let newTag=label(name,'#72e5ff',.78);newTag.position.y=2.45;avatar.group.add(newTag);$('join').style.display='none';toast('Welcome '+name+' · Explore Senthamiz City')};
+let down=null;
+renderer.domElement.addEventListener('pointerdown',e=>{if(e.clientX<innerWidth*.42&&e.clientY>innerHeight*.52)return;down={x:e.clientX,y:e.clientY,id:e.pointerId};renderer.domElement.setPointerCapture?.(e.pointerId)});
+renderer.domElement.addEventListener('pointermove',e=>{if(!down||down.id!==e.pointerId)return;let dx=e.clientX-down.x,dy=e.clientY-down.y;cameraYaw-=dx*.006;cameraPitch=Math.max(-.35,Math.min(.8,cameraPitch+dy*.004));down={x:e.clientX,y:e.clientY,id:e.pointerId}});
+renderer.domElement.addEventListener('pointerup',()=>down=null);renderer.domElement.addEventListener('pointercancel',()=>down=null);
+window.addEventListener('keydown',e=>{let k=e.key.toLowerCase();if(['w','arrowup'].includes(k))keys.up=true;if(['s','arrowdown'].includes(k))keys.down=true;if(['a','arrowleft'].includes(k))keys.left=true;if(['d','arrowright'].includes(k))keys.right=true;if(k==='e')enterCar();if(k==='p')phone();if(k==='escape'){$('chat').style.display='none';$('phone').style.display='none';$('shop').style.display='none'}if(k===' '){player.run=true}});
+window.addEventListener('keyup',e=>{let k=e.key.toLowerCase();if(['w','arrowup'].includes(k))keys.up=false;if(['s','arrowdown'].includes(k))keys.down=false;if(['a','arrowleft'].includes(k))keys.left=false;if(['d','arrowright'].includes(k))keys.right=false;if(k===' ')player.run=false});
+$('game').addEventListener('dblclick',()=>{if(!activeCar)openShop()});
 }
-function makeAvatar(p){
- const group=new THREE.Group();scene.add(group);
- const shirtColor=new THREE.Color(p.color||0x1976d2);
- const shirt=new THREE.MeshStandardMaterial({color:shirtColor,roughness:.72});
- const pants=mat(0x202b3a,.86), skin=mat(0xc98f69,.78), shoes=mat(0x111820,.65), hair=mat(0x171515,.9);
- // Torso and neck
- const torso=new THREE.Mesh(new THREE.CapsuleGeometry(.31,.48,4,8),shirt);torso.position.y=1.12;torso.castShadow=true;group.add(torso);
- const neck=new THREE.Mesh(new THREE.CylinderGeometry(.095,.11,.15,10),skin);neck.position.y=1.52;group.add(neck);
- const head=new THREE.Mesh(new THREE.SphereGeometry(.22,16,12),skin);head.position.y=1.76;head.scale.set(.88,1.12,.9);head.castShadow=true;group.add(head);
- const hairCap=new THREE.Mesh(new THREE.SphereGeometry(.225,16,8,0,Math.PI*2,0,Math.PI*.58),hair);hairCap.position.y=1.83;hairCap.scale.set(.95,1,.95);group.add(hairCap);
- // Face details
- const eyeMat=mat(0x171717,.4);sphere(.025,eyeMat,-.075,1.79,.19,group);sphere(.025,eyeMat,.075,1.79,.19,group);
- // arms and hands
- limb([-.31,1.32,0],[-.43,.92,.015],.105,shirt,group);
- limb([-.43,.92,.015],[-.44,.72,.07],.07,skin,group);
- limb([.31,1.32,0],[.43,.92,.015],.105,shirt,group);
- limb([.43,.92,.015],[.44,.72,.07],.07,skin,group);
- // trousers, two legs, shoes
- limb([-.14,.83,0],[-.16,.35,0],.115,pants,group);
- limb([.14,.83,0],[.16,.35,0],.115,pants,group);
- box(.22,.13,.38,shoes,-.16,.11,.075,group);box(.22,.13,.38,shoes,.16,.11,.075,group);
- // small belt and clothing detail
- box(.49,.07,.31,mat(0x111820),0,.84,0,group);
- const label=makeLabel(p.name||'Player',p.color||'#ffffff');label.position.y=2.35;group.add(label);
- return {group,label,name:p.name,color:p.color,targetX:p.x||0,targetZ:p.z||0,targetYaw:p.yaw||0};
-}
-function makeCar(x,z,color=0xe0a23b){
- const g=new THREE.Group();scene.add(g);g.position.set(x,.08,z);
- const paint=new THREE.MeshStandardMaterial({color,roughness:.28,metalness:.42});
- const glass=new THREE.MeshStandardMaterial({color:0x244b60,roughness:.18,metalness:.25});
- const rubber=mat(0x16191d,.9), alloy=new THREE.MeshStandardMaterial({color:0x9ca9b4,metalness:.8,roughness:.25});
- const lamp=new THREE.MeshStandardMaterial({color:0xfff0bf,emissive:0xffc95c,emissiveIntensity:.5});
- const redLamp=new THREE.MeshStandardMaterial({color:0xd92525,emissive:0x5d0000});
- // modern sports sedan body
- box(2.05,.48,4.25,paint,0,.62,0,g);
- box(1.78,.32,2.3,paint,0,.99,-.08,g);
- const cabin=box(1.57,.67,1.92,glass,0,1.35,-.12,g);
- // roof strip and front/rear glass highlights
- box(1.48,.08,.82,paint,0,1.72,-.18,g);
- box(1.5,.35,.045,glass,0,1.38,.83,g);
- box(1.5,.34,.045,glass,0,1.38,-1.06,g);
- // bumpers, grille, lights, mirrors
- box(1.9,.16,.16,mat(0x20252a),0,.43,2.14,g);
- box(1.9,.16,.16,mat(0x20252a),0,.43,-2.14,g);
- box(.7,.18,.035,mat(0x101316),0,.57,2.22,g);
- for(const wx of [-.68,.68]){box(.42,.14,.07,lamp,wx,.73,2.17,g);box(.38,.13,.07,redLamp,wx,.73,-2.17,g);}
- for(const wx of [-1.03,1.03]){
-   box(.12,.12,.22,paint,wx,1.02,.35,g);
-   for(const wz of [-1.35,1.35]){
-     const wheel=new THREE.Mesh(new THREE.CylinderGeometry(.37,.37,.22,16),rubber);wheel.rotation.z=Math.PI/2;wheel.position.set(wx,.38,wz);wheel.castShadow=true;g.add(wheel);
-     const hub=new THREE.Mesh(new THREE.CylinderGeometry(.19,.19,.235,12),alloy);hub.rotation.z=Math.PI/2;hub.position.set(wx,.38,wz);g.add(hub);
-     const center=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.24,12),mat(0x313a43,.3,.7));center.rotation.z=Math.PI/2;center.position.set(wx,.38,wz);g.add(center);
-   }
- }
- const car={group:g,x,z,yaw:0};cars.push(car);return car;
-}
-makeCar(5,5,0xe0a23b);makeCar(-6,-5,0x3f91c9);makeCar(9,-9,0xd95e57);makeCar(-10,8,0x6ba36d);
-function addPlayer(p){if(players.has(p.id))return;players.set(p.id,makeAvatar(p));}
-function removePlayer(id){const p=players.get(id);if(p){scene.remove(p.group);players.delete(id);}}
-function addMessage(html){const d=document.createElement('div');d.innerHTML=html;messages.appendChild(d);while(messages.children.length>70)messages.removeChild(messages.firstChild);messages.scrollTop=messages.scrollHeight;}
-function toast(t){const el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2200);}
-socket.on('connect',()=>{statusEl.textContent='Connected';});
-socket.on('disconnect',()=>{statusEl.textContent='Disconnected';});
-socket.on('welcome',data=>{selfId=data.self.id;addPlayer(data.self);for(const p of data.players)addPlayer(p);statusEl.textContent='In city';});
-socket.on('playerJoined',p=>{addPlayer(p);toast(p.name+' joined the city');});
-socket.on('playerMoved',p=>{if(p.id!==selfId){if(!players.has(p.id))addPlayer(p);const a=players.get(p.id);a.targetX=p.x;a.targetZ=p.z;a.targetYaw=p.yaw;a.inCar=p.inCar;}});
-socket.on('playerLeft',id=>removePlayer(id));
-socket.on('count',n=>countEl.textContent=n);
-socket.on('chat',m=>addMessage(`<span style="color:${m.color}"><b>${escapeHtml(m.name)}</b></span>: ${escapeHtml(m.message)}`));
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-document.getElementById('joinform').addEventListener('submit',e=>{e.preventDefault();myName=document.getElementById('name').value.trim().slice(0,18)||'Player';socket.emit('join',myName);join.style.display='none';joined=true;chatInput.blur();renderer.domElement.requestPointerLock?.();});
-document.getElementById('chatform').addEventListener('submit',e=>{e.preventDefault();const v=chatInput.value.trim();if(v){socket.emit('chat',v);chatInput.value='';}chatInput.blur();});
-addEventListener('keydown',e=>{
- if(e.key==='Enter' && document.activeElement!==chatInput && joined){e.preventDefault();chatInput.focus();return;}
- if(e.key==='Escape'&&document.activeElement===chatInput){chatInput.blur();return;}
- keys[e.key.toLowerCase()]=true;
- if(e.key.toLowerCase()==='e'&&joined&&document.activeElement!==chatInput)toggleCar();
-});
-
-addEventListener('keyup',e=>keys[e.key.toLowerCase()]=false);
-
-// Touch controls for Android phones/tablets.
-function bindHoldButton(id, key){
- const el=document.getElementById(id); if(!el)return;
- const down=e=>{e.preventDefault();keys[key]=true;el.classList.add('pressed');};
- const up=e=>{e.preventDefault();keys[key]=false;el.classList.remove('pressed');};
- el.addEventListener('pointerdown',down);
- el.addEventListener('pointerup',up);
- el.addEventListener('pointercancel',up);
- el.addEventListener('pointerleave',up);
-}
-bindHoldButton('touch-up','w');bindHoldButton('touch-down','s');
-bindHoldButton('touch-left','a');bindHoldButton('touch-right','d');
-bindHoldButton('touch-run','shift');
-document.getElementById('touch-car').addEventListener('pointerdown',e=>{e.preventDefault();if(joined)toggleCar();});
-document.getElementById('touch-chat').addEventListener('pointerdown',e=>{e.preventDefault();chatInput.focus();});
-
-// Drag the right half of the screen to orbit the camera on touch devices.
-let touchLookId=null, touchLookX=0, touchLookY=0;
-renderer.domElement.addEventListener('touchstart',e=>{
- const t=[...e.changedTouches].find(t=>t.clientX>innerWidth*.42);
- if(t && joined && document.activeElement!==chatInput){touchLookId=t.identifier;touchLookX=t.clientX;touchLookY=t.clientY;}
-},{passive:true});
-renderer.domElement.addEventListener('touchmove',e=>{
- if(touchLookId===null)return;
- const t=[...e.changedTouches].find(t=>t.identifier===touchLookId);if(!t)return;
- yaw-=(t.clientX-touchLookX)*.006;
- pitch=Math.max(-.3,Math.min(.75,pitch+(t.clientY-touchLookY)*.004));
- touchLookX=t.clientX;touchLookY=t.clientY;
-},{passive:true});
-renderer.domElement.addEventListener('touchend',e=>{
- if([...e.changedTouches].some(t=>t.identifier===touchLookId))touchLookId=null;
-},{passive:true});
-
-let dragging=false,lastX=0,lastY=0;
-renderer.domElement.addEventListener('mousedown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;});
-addEventListener('mouseup',()=>dragging=false);
-addEventListener('mousemove',e=>{if(dragging&&joined&&document.activeElement!==chatInput){yaw-=(e.clientX-lastX)*.004;pitch=Math.max(-.3,Math.min(.75,pitch+(e.clientY-lastY)*.003));}lastX=e.clientX;lastY=e.clientY;});
-function toggleCar(){
- const me=players.get(selfId);if(!me)return;
- if(inCar){inCar=false;activeCar.occupied=false;me.group.visible=true;me.group.position.set(activeCar.group.position.x+2,0,activeCar.group.position.z);activeCar=null;modeEl.textContent='On foot';toast('Exited vehicle');return;}
- let nearest=null,dist=4.5;
- for(const c of cars){if(c.occupied)continue;const d=Math.hypot(c.group.position.x-me.group.position.x,c.group.position.z-me.group.position.z);if(d<dist){dist=d;nearest=c;}}
- if(nearest){activeCar=nearest;inCar=true;activeCar.occupied=true;me.group.visible=false;modeEl.textContent='Driving';toast('Vehicle entered · WASD to drive');}else toast('Move closer to a car (within 4.5m)');
-}
-function update(dt){
- const me=players.get(selfId);
- if(me&&joined){
-  const forward=(keys.w||keys.arrowup?1:0)-(keys.s||keys.arrowdown?1:0);
-  const side=(keys.d||keys.arrowright?1:0)-(keys.a||keys.arrowleft?1:0);
-  if(inCar&&activeCar){
-   if(forward||side){activeCar.yaw=yaw;const speed=forward?11:0;activeCar.group.position.x+=Math.sin(yaw)*speed*dt+side*Math.cos(yaw)*7*dt;activeCar.group.position.z+=Math.cos(yaw)*speed*dt-side*Math.sin(yaw)*7*dt;activeCar.group.rotation.y=yaw;activeCar.x=activeCar.group.position.x;activeCar.z=activeCar.group.position.z;}
-   me.group.position.set(activeCar.group.position.x,0,activeCar.group.position.z);
-  }else if(forward||side){
-   const speed=keys.shift?9:5.3;
-   me.group.position.x+=(Math.sin(yaw)*forward+Math.cos(yaw)*side)*speed*dt;
-   me.group.position.z+=(Math.cos(yaw)*forward-Math.sin(yaw)*side)*speed*dt;
-   me.group.position.x=Math.max(-100,Math.min(100,me.group.position.x));me.group.position.z=Math.max(-100,Math.min(100,me.group.position.z));
-   me.group.rotation.y=yaw+Math.atan2(side,forward||.0001);
-  }
-  if(performance.now()-lastSend>65){socket.emit('move',{x:me.group.position.x,z:me.group.position.z,yaw,inCar});lastSend=performance.now();}
- }
- for(const [id,p] of players){if(id===selfId)continue;p.group.position.x+=(p.targetX-p.group.position.x)*Math.min(1,dt*12);p.group.position.z+=(p.targetZ-p.group.position.z)*Math.min(1,dt*12);p.group.rotation.y=p.targetYaw;}
- const focus=(me&&joined)?(inCar&&activeCar?activeCar.group.position:me.group.position):new THREE.Vector3(0,0,0);
- const targetYaw=yaw;const distance=inCar?11:8;
- const desired=new THREE.Vector3(focus.x-Math.sin(targetYaw)*distance,focus.y+(inCar?5.4:4.1)+pitch*3,focus.z-Math.cos(targetYaw)*distance);
- camera.position.lerp(desired,Math.min(1,dt*5));camera.lookAt(focus.x,focus.y+(inCar?.8:1.1),focus.z);
-}
-let prev=performance.now();
-function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-prev)/1000,.05);prev=now;update(dt);renderer.render(scene,camera);}
-requestAnimationFrame(loop);
-addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+try{init();setupUI();animate()}catch(e){console.error(e);$('joinbox').innerHTML='<h2>Game could not load</h2><p>Please check your internet connection and reload. The 3D engine loads from a CDN.</p>'}
+})();
 </script>
 </body>
 </html>
