@@ -15,10 +15,11 @@
 #hud{position:fixed;right:12px;top:max(10px,env(safe-area-inset-top));padding:10px 12px;font-size:12px;line-height:1.45;min-width:112px}
 #hud strong{color:#7de1ff}
 #mission{position:fixed;top:88px;left:12px;padding:8px 12px;font-size:12px;max-width:58vw}
-#controls{position:fixed;left:14px;bottom:max(18px,env(safe-area-inset-bottom));width:190px;height:145px}
-.ctrl{position:absolute;width:58px;height:52px;border-radius:14px;border:1px solid #a8d7ed77;background:#0b1825d9;color:white;font-size:20px;font-weight:800;box-shadow:0 4px 14px #0004;touch-action:none}
-.ctrl:active,.action:active{background:#126a86e8;transform:scale(.97)}
-#up{left:66px;top:0}#left{left:0;top:62px}#down{left:66px;top:62px}#right{left:132px;top:62px}
+#controls{position:fixed;left:18px;bottom:max(20px,env(safe-area-inset-bottom));width:160px;height:160px;touch-action:none;user-select:none}
+#joyBase{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 35% 28%,#a9d5e744,#0b1825cc 72%);border:2px solid #b6e7fa88;box-shadow:0 8px 28px #0005,inset 0 0 20px #b8e8ff22;touch-action:none}
+#joyRing{position:absolute;inset:22px;border-radius:50%;border:1px solid #c2eaff55}
+#joyKnob{position:absolute;width:62px;height:62px;left:50%;top:50%;transform:translate(-50%,-50%);border-radius:50%;background:linear-gradient(145deg,#d8f6ff,#3a91b6 55%,#12506c);border:2px solid #e2f9ff;box-shadow:0 4px 12px #0008,inset 0 2px 4px #fff9;pointer-events:none}
+.action:active{background:#126a86e8;transform:scale(.97)}
 #actions{position:fixed;right:12px;bottom:max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:8px}
 .action{min-width:68px;padding:12px 10px;border-radius:15px;border:1px solid #a8d7ed77;background:#0b1825df;color:#fff;font-weight:800;font-size:12px;touch-action:manipulation}
 #hint{position:fixed;left:12px;bottom:174px;padding:8px 10px;font-size:11px;color:#d4e7f0;max-width:190px}
@@ -48,10 +49,8 @@ input{background:#0b1d2a;color:#fff;border:1px solid #7eb4cc66;border-radius:10p
 <div id="brand" class="panel"><b>◈ SENTHAMIZ ROLE PLAY</b><small>OPEN CITY • MOBILE EDITION</small></div>
 <div id="hud" class="panel"><strong id="status">CITY LIFE</strong><br>Mode: <span id="mode">On foot</span><br>Cash: ₹<span id="cash">2500</span><br>Area: <span id="area">Central City</span></div>
 <div id="mission" class="panel">Explore the city · Find a car · Visit the shops</div>
-<div id="controls">
-<button class="ctrl" id="up" aria-label="Forward">▲</button><button class="ctrl" id="left" aria-label="Left">◀</button><button class="ctrl" id="down" aria-label="Back">▼</button><button class="ctrl" id="right" aria-label="Right">▶</button>
-</div>
-<div id="hint" class="panel">Hold arrows to move/drive. Drag the open screen to look around. Tap CAR near a vehicle.</div>
+<div id="controls" aria-label="Virtual joystick"><div id="joyBase"><div id="joyRing"></div><div id="joyKnob"></div></div></div>
+<div id="hint" class="panel">Move the joystick to walk/drive. Drag the open screen to look around. Tap CAR near a vehicle.</div>
 <div id="actions"><button class="action" id="run">RUN</button><button class="action" id="car">CAR</button><button class="action" id="phoneBtn">📱 PHONE</button><button class="action" id="shopBtn">SHOP</button><button class="action" id="chatBtn">CHAT</button></div>
 <div id="phone" class="panel"><button class="action" id="phoneClose">✕</button><h3>📱 SURIYA PHONE</h3><p style="font-size:11px;color:#bdd5e4">Senthamiz mobile services</p><div class="phonegrid"><div class="app">☎️<br>Calls</div><div class="app">🗺️<br>Map</div><div class="app">💬<br>Messages</div><div class="app">🚕<br>Taxi</div><div class="app">🏪<br>Shops</div><div class="app">⚙️<br>Settings</div></div><p id="phoneMsg" style="font-size:11px;color:#7de1ff">Welcome to Senthamiz City.</p></div>
 <div id="chat" class="panel"><button class="action" id="chatClose">✕</button><h3>🏙️ CITY CHAT</h3><div id="chatlog">Welcome to Senthamiz City. Be respectful!<br></div><div class="row"><input id="chatInput" placeholder="Type a message..."><button class="action" id="send">SEND</button></div></div>
@@ -139,8 +138,18 @@ function updateCamera(dt){let target;if(activeCar)target=activeCar.group.positio
 function updateArea(){let area='Central City';if(player.z<-130)area='Mountain Road';else if(Math.abs(player.x)>75||Math.abs(player.z)>75)area='Outer District';else if(Math.abs(player.x)<35&&player.z>18&&player.z<60)area='Shopping Street';$('area').textContent=area;$('cash').textContent=cash}
 function animate(){requestAnimationFrame(animate);let dt=Math.min(.05,clock.getDelta()),t=clock.elapsedTime;movement(dt);updateNPC(dt,t);updateCamera(dt);updateArea();renderer.render(scene,camera)}
 function bindHold(id,key){let el=$(id);const on=e=>{e.preventDefault();keys[key]=true;el.setPointerCapture?.(e.pointerId)};const off=e=>{keys[key]=false};el.addEventListener('pointerdown',on);el.addEventListener('pointerup',off);el.addEventListener('pointercancel',off);el.addEventListener('lostpointercapture',off)}
+function setupJoystick(){
+ const base=$('joyBase'),knob=$('joyKnob');let activeId=null,cx=0,cy=0,max=48;
+ function reset(){keys.up=keys.down=keys.left=keys.right=false;knob.style.left='50%';knob.style.top='50%';activeId=null}
+ function move(e){if(activeId!==e.pointerId)return;let dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy);if(len>max){dx=dx/len*max;dy=dy/len*max}
+ knob.style.left=`calc(50% + ${dx}px)`;knob.style.top=`calc(50% + ${dy}px)`;
+ keys.left=dx < -13;keys.right=dx > 13;keys.up=dy < -13;keys.down=dy > 13;
+ }
+ base.addEventListener('pointerdown',e=>{e.preventDefault();activeId=e.pointerId;let r=base.getBoundingClientRect();cx=r.left+r.width/2;cy=r.top+r.height/2;base.setPointerCapture?.(e.pointerId);move(e)});
+ base.addEventListener('pointermove',move);base.addEventListener('pointerup',e=>{if(activeId===e.pointerId)reset()});base.addEventListener('pointercancel',reset);base.addEventListener('lostpointercapture',reset);
+}
 function setupUI(){
-[['up','up'],['down','down'],['left','left'],['right','right']].forEach(a=>bindHold(...a));
+setupJoystick();
 $('run').onclick=()=>{player.run=!player.run;$('run').textContent=player.run?'WALK':'RUN';toast(player.run?'Running enabled':'Walking')};
 $('car').onclick=enterCar;$('shopBtn').onclick=openShop;$('phoneBtn').onclick=phone;$('phoneClose').onclick=phone;$('chatBtn').onclick=()=>{$('chat').style.display='block';$('chatInput').focus()};$('chatClose').onclick=()=>$('chat').style.display='none';
 $('send').onclick=()=>{let v=$('chatInput').value.trim();if(!v)return;let log=$('chatlog');log.innerHTML+='<br><b style="color:#7de1ff">Suriya:</b> '+v.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));log.scrollTop=log.scrollHeight;$('chatInput').value=''};
